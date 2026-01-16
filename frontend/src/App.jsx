@@ -6,11 +6,13 @@ import Navigation from './components/Navigation';
 import PhotoUpload from './components/PhotoUpload';
 import PhotoGallery from './components/PhotoGallery';
 import Guestbook from './components/Guestbook';
+import BackgroundSelector from './components/BackgroundSelector';
 
 function App() {
   const [isAdmin, setIsAdmin] = useState(false);
   const [adminToken, setAdminToken] = useState(null);
   const [activeSection, setActiveSection] = useState('photos'); // Default to photos
+  const [background, setBackground] = useState('linear-gradient(135deg, #5a175d 0%, #764ba2 100%)');
 
   console.log('App - isAdmin:', isAdmin, 'adminToken:', adminToken);
 
@@ -21,9 +23,12 @@ function App() {
   };
 
   return (
-    <div className="App">
+    <div className="App" style={{ background, minHeight: '100vh' }}>
       {/* Admin Panel - floating in top-right */}
       <AdminPanel onAdminChange={handleAdminChange} />
+      
+      {/* Background Selector */}
+      <BackgroundSelector onBackgroundChange={setBackground} />
 
       <div style={styles.container}>
         <h1 style={styles.mainTitle}>Wedding Reception</h1>
