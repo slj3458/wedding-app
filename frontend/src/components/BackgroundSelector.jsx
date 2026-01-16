@@ -119,6 +119,7 @@ const styles = {
     fontSize: '14px',
     fontWeight: '500',
     transition: 'all 0.3s ease',
+    color: 'black',
   },
   selectedOption: {
     display: 'flex',
@@ -127,7 +128,7 @@ const styles = {
   },
   arrow: {
     fontSize: '12px',
-    color: '#764ba2',
+    color: 'black',
   },
   colorTile: {
     width: '30px',
@@ -161,6 +162,7 @@ const styles = {
     fontWeight: '500',
     transition: 'background 0.2s ease',
     textAlign: 'left',
+    color: 'black',
   },
   dropdownItemSelected: {
     background: 'rgba(118, 75, 162, 0.1)',
