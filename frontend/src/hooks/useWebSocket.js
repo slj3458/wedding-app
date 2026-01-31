@@ -1,23 +1,24 @@
 // src/hooks/useWebSocket.js
-import { useEffect, useState, useCallback, useRef } from 'react';
+import { useEffect, useState, useCallback, useRef } from "react";
+import { API } from "../config";
 
 /**
  * Custom hook to manage WebSocket connections
  * This connects to your FastAPI backend and listens for real-time updates
  */
-export const useWebSocket = (url) => {
+export const useWebSocket = () => {
   const [messages, setMessages] = useState([]);
   const [isConnected, setIsConnected] = useState(false);
   const wsRef = useRef(null);
 
   useEffect(() => {
-    // Create WebSocket connection
-    const websocket = new WebSocket(url);
+    // Create WebSocket connection using config
+    const websocket = new WebSocket(API.WEBSOCKET);
     wsRef.current = websocket;
 
     // When connection opens
     websocket.onopen = () => {
-      console.log('WebSocket connected to:', url);
+      console.log("WebSocket connected to:", API.WEBSOCKET);
       setIsConnected(true);
     };
 
@@ -25,22 +26,22 @@ export const useWebSocket = (url) => {
     websocket.onmessage = (event) => {
       try {
         const data = JSON.parse(event.data);
-        console.log('Received WebSocket message:', data);
-        setMessages(prev => [...prev, data]);
+        console.log("Received WebSocket message:", data);
+        setMessages((prev) => [...prev, data]);
       } catch (error) {
-        console.error('Error parsing WebSocket message:', error);
+        console.error("Error parsing WebSocket message:", error);
       }
     };
 
     // If there's an error
     websocket.onerror = (error) => {
-      console.error('WebSocket error:', error);
+      console.error("WebSocket error:", error);
       setIsConnected(false);
     };
 
     // When connection closes
     websocket.onclose = () => {
-      console.log('WebSocket disconnected');
+      console.log("WebSocket disconnected");
       setIsConnected(false);
     };
 
@@ -50,14 +51,14 @@ export const useWebSocket = (url) => {
         websocket.close();
       }
     };
-  }, [url]);
+  }, []);
 
   // Function to send messages to the server
   const sendMessage = useCallback((message) => {
     if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
       wsRef.current.send(JSON.stringify(message));
     } else {
-      console.warn('WebSocket is not connected');
+      console.warn("WebSocket is not connected");
     }
   }, []);
 

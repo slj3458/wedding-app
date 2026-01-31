@@ -68,3 +68,14 @@ async def root():
 @app.get("/health")
 async def health_check():
     return {"status": "healthy"}
+
+# Serve frontend static files in production
+from fastapi.staticfiles import StaticFiles
+from pathlib import Path
+
+# Get the frontend build directory
+frontend_dist = Path(__file__).parent.parent / "frontend" / "dist"
+
+# Only mount if the dist folder exists (production)
+if frontend_dist.exists():
+    app.mount("/", StaticFiles(directory=str(frontend_dist), html=True), name="static")
