@@ -12,10 +12,21 @@ const PhotoGallery = ({ isAdmin = false, adminToken = null }) => {
   const [sortBy, setSortBy] = useState("recent");
 
   // Connect to WebSocket for real-time updates
-  const { messages, isConnected } = useWebSocket("ws://localhost:8000/ws");
+  const { messages, isConnected } = useWebSocket();
 
   // Fetch initial photos when component loads
   useEffect(() => {
+    const fetchPhotos = async () => {
+      try {
+        const response = await fetch(API.GALLERY_PHOTOS);
+        const data = await response.json();
+        setPhotos(data.photos);
+        setLoading(false);
+      } catch (error) {
+        console.error("Error fetching photos:", error);
+        setLoading(false);
+      }
+    };
     fetchPhotos();
   }, []);
 
@@ -25,14 +36,22 @@ const PhotoGallery = ({ isAdmin = false, adminToken = null }) => {
       const latestMessage = messages[messages.length - 1];
 
       if (latestMessage.type === "new_photo") {
-        handleNewPhoto(latestMessage.data);
+        setPhotos((prev) => {
+          const exists = prev.some((p) => p.id === latestMessage.data.id);
+          return exists ? prev : [latestMessage.data, ...prev];
+        });
       } else if (latestMessage.type === "photo_liked") {
-        handlePhotoLiked(latestMessage.data);
+        setPhotos((prev) =>
+          prev.map((photo) =>
+            photo.id === latestMessage.data.id
+              ? { ...photo, likes: latestMessage.data.likes }
+              : photo,
+          ),
+        );
       } else if (
         latestMessage.type === "photo_deleted" ||
         latestMessage.type === "photo_hidden"
       ) {
-        // Remove photo from display when admin deletes/hides it
         setPhotos((prev) =>
           prev.filter((photo) => photo.id !== latestMessage.data.id),
         );
@@ -72,38 +91,6 @@ const PhotoGallery = ({ isAdmin = false, adminToken = null }) => {
 
     setFilteredPhotos(result);
   }, [photos, searchTerm, sortBy]);
-
-  // Function to fetch photos from backend
-  const fetchPhotos = async () => {
-    try {
-      const response = await fetch(`${API}/gallery/photos`);
-      const data = await response.json();
-      setPhotos(data.photos);
-      setLoading(false);
-    } catch (error) {
-      console.error("Error fetching photos:", error);
-      setLoading(false);
-    }
-  };
-
-  // ADD THESE TWO FUNCTIONS HERE:
-  // Handle new photo from WebSocket
-  const handleNewPhoto = (photo) => {
-    // Check if photo already exists to avoid duplicates
-    const exists = photos.some((p) => p.id === photo.id);
-    if (!exists) {
-      setPhotos((prev) => [photo, ...prev]);
-    }
-  };
-
-  // Handle photo liked from WebSocket
-  const handlePhotoLiked = (data) => {
-    setPhotos((prevPhotos) =>
-      prevPhotos.map((photo) =>
-        photo.id === data.id ? { ...photo, likes: data.likes } : photo,
-      ),
-    );
-  };
 
   // Function to like a photo
   const likePhoto = async (photoId) => {

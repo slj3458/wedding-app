@@ -25,7 +25,7 @@ RUN --mount=type=cache,target=/root/.cache/uv \
 RUN mkdir -p /app/uploads /app/thumbnails /app/data
 
 # Expose port
-EXPOSE 8000
+EXPOSE 8080
 
 # Run the application
-CMD ["/app/.venv/bin/fastapi", "run", "app/main.py", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["/app/.venv/bin/fastapi", "run", "app/main.py", "--host", "0.0.0.0", "--port", "8080"]

@@ -12,10 +12,21 @@ const Guestbook = ({ isAdmin = false, adminToken = null }) => {
   const [notification, setNotification] = useState({ type: "", text: "" });
 
   // Connect to WebSocket for real-time updates
-  const { messages } = useWebSocket("ws://localhost:8000/ws");
+  const { messages } = useWebSocket();
 
   // Fetch initial entries when component loads
   useEffect(() => {
+    const fetchEntries = async () => {
+      try {
+        const response = await fetch(API.GUESTBOOK_ENTRIES);
+        const data = await response.json();
+        setEntries(data.entries);
+        setLoading(false);
+      } catch (error) {
+        console.error("Error fetching guestbook entries:", error);
+        setLoading(false);
+      }
+    };
     fetchEntries();
   }, []);
 
@@ -25,12 +36,14 @@ const Guestbook = ({ isAdmin = false, adminToken = null }) => {
       const latestMessage = messages[messages.length - 1];
 
       if (latestMessage.type === "new_guestbook_entry") {
-        handleNewEntry(latestMessage.data);
+        setEntries((prev) => {
+          const exists = prev.some((e) => e.id === latestMessage.data.id);
+          return exists ? prev : [latestMessage.data, ...prev];
+        });
       } else if (
         latestMessage.type === "guestbook_deleted" ||
         latestMessage.type === "guestbook_hidden"
       ) {
-        // Remove entry from display when admin deletes/hides it
         setEntries((prev) =>
           prev.filter((entry) => entry.id !== latestMessage.data.id),
         );
@@ -38,27 +51,6 @@ const Guestbook = ({ isAdmin = false, adminToken = null }) => {
     }
   }, [messages]);
 
-  // Function to fetch entries from backend
-  const fetchEntries = async () => {
-    try {
-      const response = await fetch(API.GUESTBOOK_ENTRIES);
-      const data = await response.json();
-      setEntries(data.entries);
-      setLoading(false);
-    } catch (error) {
-      console.error("Error fetching guestbook entries:", error);
-      setLoading(false);
-    }
-  };
-
-  // Handle new entry from WebSocket
-  const handleNewEntry = (entry) => {
-    // Check if entry already exists to avoid duplicates
-    const exists = entries.some((e) => e.id === entry.id);
-    if (!exists) {
-      setEntries((prev) => [entry, ...prev]);
-    }
-  };
   // Function to submit a new entry
   const handleSubmit = async (event) => {
     event.preventDefault();

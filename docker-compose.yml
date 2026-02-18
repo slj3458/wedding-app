@@ -1,11 +1,11 @@
-version: '3.8'
+version: "3.8"
 
 services:
   wedding-app:
     build: .
     container_name: wedding-reception-app
     ports:
-      - "8000:8000"
+      - "8080:8080"
     volumes:
       # Persist uploads and database
       - ./uploads:/app/uploads
@@ -13,7 +13,7 @@ services:
       - ./data:/app/data
     environment:
       - PYTHONUNBUFFERED=1
-      - MAX_UPLOAD_SIZE=10485760  # 10MB
+      - MAX_UPLOAD_SIZE=10485760 # 10MB
     restart: unless-stopped
     networks:
       - wedding-net
