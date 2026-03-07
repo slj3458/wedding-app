@@ -1,0 +1,88 @@
+scott@hpg4:~$ curl -fsSL https://tailscale.com/install.sh | sh
+Installing Tailscale for debian bookworm, using method apt
++ sudo mkdir -p --mode=0755 /usr/share/keyrings
+[sudo] password for scott: 
++ curl -fsSL https://pkgs.tailscale.com/stable/debian/bookworm.noarmor.gpg
++ sudo tee /usr/share/keyrings/tailscale-archive-keyring.gpg
++ sudo chmod 0644 /usr/share/keyrings/tailscale-archive-keyring.gpg
++ curl -fsSL https://pkgs.tailscale.com/stable/debian/bookworm.tailscale-keyring.list
++ sudo tee /etc/apt/sources.list.d/tailscale.list
+# Tailscale packages for debian bookworm
+deb [signed-by=/usr/share/keyrings/tailscale-archive-keyring.gpg] https://pkgs.tailscale.com/stable/debian bookworm main
++ sudo chmod 0644 /etc/apt/sources.list.d/tailscale.list
++ sudo apt-get update
+Hit:1 http://deb.debian.org/debian bookworm InRelease
+Get:2 http://security.debian.org/debian-security bookworm-security InRelease [48.0 kB]               
+Hit:3 https://download.docker.com/linux/debian bookworm InRelease                                    
+Ign:4 https://repo.vivaldi.com/stable/deb stable InRelease                                           
+Hit:5 http://repository.netdata.cloud/repos/stable/debian bookworm/ InRelease                        
+Get:6 http://deb.debian.org/debian bookworm-updates InRelease [55.4 kB]                              
+Hit:7 https://dl.google.com/linux/chrome/deb stable InRelease                                        
+Hit:8 https://deb.nodesource.com/node_20.x nodistro InRelease                                        
+Get:9 https://pkgs.tailscale.com/stable/debian bookworm InRelease                                    
+Hit:10 http://repository.netdata.cloud/repos/repoconfig/debian bookworm/ InRelease                   
+Hit:11 https://repo.vivaldi.com/stable/deb stable Release                                            
+Hit:12 https://cli.github.com/packages stable InRelease                                              
+Hit:13 https://packages.microsoft.com/repos/code stable InRelease                
+Get:14 https://pkgs.tailscale.com/stable/debian bookworm/main amd64 Packages [14.5 kB]
+Get:16 https://pkgs.tailscale.com/stable/debian bookworm/main all Packages [354 B]
+Fetched 125 kB in 2s (78.9 kB/s) 
+Reading package lists... Done
++ [ -n  ]
++ sudo apt-get install -y tailscale tailscale-archive-keyring
+Reading package lists... Done
+Building dependency tree... Done
+Reading state information... Done
+The following NEW packages will be installed:
+  tailscale tailscale-archive-keyring
+0 upgraded, 2 newly installed, 0 to remove and 0 not upgraded.
+Need to get 35.4 MB of archives.
+After this operation, 69.8 MB of additional disk space will be used.
+Get:2 https://pkgs.tailscale.com/stable/debian bookworm/main all tailscale-archive-keyring all 1.35.181 [3,082 B]
+Get:1 https://pkgs.tailscale.com/stable/debian bookworm/main amd64 tailscale amd64 1.94.1 [35.4 MB]  
+Fetched 35.4 MB in 2s (22.1 MB/s)                         
+Selecting previously unselected package tailscale.
+(Reading database ... 221314 files and directories currently installed.)
+Preparing to unpack .../tailscale_1.94.1_amd64.deb ...
+Unpacking tailscale (1.94.1) ...
+Selecting previously unselected package tailscale-archive-keyring.
+Preparing to unpack .../tailscale-archive-keyring_1.35.181_all.deb ...
+Unpacking tailscale-archive-keyring (1.35.181) ...
+Setting up tailscale-archive-keyring (1.35.181) ...
+Setting up tailscale (1.94.1) ...
+Created symlink /etc/systemd/system/multi-user.target.wants/tailscaled.service → /lib/systemd/system/tailscaled.service.
++ [ false = true ]
++ set +x
+Installation complete! Log in to start using Tailscale by running:
+
+sudo tailscale up
+scott@hpg4:~$ sudo tailscale up
+
+To authenticate, visit:
+
+        https://login.tailscale.com/a/16dfb950014d39
+
+Success.
+scott@hpg4:~$ tailscale ip -4
+100.126.46.39
+scott@hpg4:~$ tailscale funnel 5173
+
+Funnel is not enabled on your tailnet.
+To enable, visit:
+
+         https://login.tailscale.com/f/funnel?node=niuJD6fC1i11CNTRL
+
+Success.
+sending serve config: Access denied: serve config denied
+
+Use 'sudo tailscale funnel 5173'.
+To not require root, use 'sudo tailscale set --operator=$USER' once.
+scott@hpg4:~$ sudo tailscale funnel 5173
+Available on the internet:
+
+https://hpg4.tail6a83e.ts.net/
+|-- proxy http://127.0.0.1:5173
+
+Press Ctrl+C to exit.
+^Cscott@hpg4:~$ ^C
+scott@hpg4:~$ 

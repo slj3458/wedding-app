@@ -7,4 +7,25 @@ wheels/
 *.egg-info
 
 # Virtual environments
-.venv
+.venv/
+
+# Node.js
+node_modules/
+
+# Runtime data (uploads, thumbnails, database)
+data/
+uploads/
+thumbnails/
+*.db
+*.sqlite
+*.sqlite3
+
+# Environment variables
+.env
+.env.local
+
+# Editor backup files
+*~
+*.swp
+*.swo
+.DS_Store

@@ -1,0 +1,99 @@
+scott@hpg4:~$ cloudflared --version
+bash: cloudflared: command not found
+scott@hpg4:~$ # Add cloudflare gpg key
+sudo mkdir -p --mode=0755 /usr/share/keyrings
+curl -fsSL https://pkg.cloudflare.com/cloudflare-public-v2.gpg | sudo tee /usr/share/keyrings/cloudflare-public-v2.gpg >/dev/null
+
+# Add this repo to your apt repositories
+echo 'deb [signed-by=/usr/share/keyrings/cloudflare-public-v2.gpg] https://pkg.cloudflare.com/cloudflared any main' | sudo tee /etc/apt/sources.list.d/cloudflared.list
+
+# install cloudflared
+sudo apt-get update && sudo apt-get install cloudflared
+[sudo] password for scott: 
+deb [signed-by=/usr/share/keyrings/cloudflare-public-v2.gpg] https://pkg.cloudflare.com/cloudflared any main
+Hit:1 http://security.debian.org/debian-security bookworm-security InRelease
+Hit:2 http://deb.debian.org/debian bookworm InRelease                                                
+Hit:3 https://download.docker.com/linux/debian bookworm InRelease                                    
+Ign:4 https://repo.vivaldi.com/stable/deb stable InRelease                                           
+Hit:5 http://deb.debian.org/debian bookworm-updates InRelease                                        
+Hit:6 https://cli.github.com/packages stable InRelease                                               
+Hit:7 https://dl.google.com/linux/chrome/deb stable InRelease                                        
+Hit:8 http://repository.netdata.cloud/repos/stable/debian bookworm/ InRelease                        
+Hit:9 https://deb.nodesource.com/node_20.x nodistro InRelease                                        
+Hit:10 https://repo.vivaldi.com/stable/deb stable Release                                            
+Get:11 https://pkgs.tailscale.com/stable/debian bookworm InRelease                                   
+Hit:12 http://repository.netdata.cloud/repos/repoconfig/debian bookworm/ InRelease         
+Hit:13 https://packages.microsoft.com/repos/code stable InRelease   
+Get:14 https://pkg.cloudflare.com/cloudflared any InRelease [5,039 B]
+Get:16 https://pkg.cloudflare.com/cloudflared any/main amd64 Packages [376 B]
+Fetched 12.0 kB in 2s (7,583 B/s)  
+Reading package lists... Done
+Reading package lists... Done
+Building dependency tree... Done
+Reading state information... Done
+The following NEW packages will be installed:
+  cloudflared
+0 upgraded, 1 newly installed, 0 to remove and 0 not upgraded.
+Need to get 20.1 MB of archives.
+After this operation, 41.3 MB of additional disk space will be used.
+Get:1 https://pkg.cloudflare.com/cloudflared any/main amd64 cloudflared amd64 2026.1.2 [20.1 MB]
+Fetched 20.1 MB in 1s (24.7 MB/s)    
+Selecting previously unselected package cloudflared.
+(Reading database ... 221319 files and directories currently installed.)
+Preparing to unpack .../cloudflared_2026.1.2_amd64.deb ...
+Unpacking cloudflared (2026.1.2) ...
+Setting up cloudflared (2026.1.2) ...
+Processing triggers for man-db (2.11.2-2) ...
+scott@hpg4:~$ cloudflared tunnel run --token eyJhIjoiYmMwNzhiNjgyNTIyOTU0NjkzZmVkYzQzMjFiNWYyNzAiLCJ0IjoiMjhiMzlhMzUtYjk5OS00MDA5LWExZDUtNzRkODAwYjM0NGNjIiwicyI6Ik5EazRPV1l4WW1RdFkyVmlNUzAwWVRJNExUaGlNemt0TmpreVlXSmlPVEEwT1dJeCJ9
+2026-02-01T13:46:10Z INF Starting tunnel tunnelID=28b39a35-b999-4009-a1d5-74d800b344cc
+2026-02-01T13:46:10Z INF Version 2026.1.2 (Checksum e157c54e929cc289cbd53860453168c2fe3439eb55e2e965a56579252585d9c1)
+2026-02-01T13:46:10Z INF GOOS: linux, GOVersion: go1.24.11, GoArch: amd64
+2026-02-01T13:46:10Z INF Settings: map[token:*****]
+2026-02-01T13:46:10Z INF cloudflared will not automatically update if installed by a package manager.
+2026-02-01T13:46:10Z INF Generated Connector ID: 111c662a-7e32-4843-a12a-9dc2c4dd7cee
+2026-02-01T13:46:10Z INF Initial protocol quic
+2026-02-01T13:46:10Z INF ICMP proxy will use 192.168.12.158 as source for IPv4
+2026-02-01T13:46:10Z INF ICMP proxy will use fdfe:5e6c:2e69:98de:a313:3ce8:90b2:a9c8 in zone eno1 as source for IPv6
+2026-02-01T13:46:10Z WRN The user running cloudflared process has a GID (group ID) that is not within ping_group_range. You might need to add that user to a group within that range, or instead update the range to encompass a group the user is already in by modifying /proc/sys/net/ipv4/ping_group_range. Otherwise cloudflared will not be able to ping this network error="Group ID 1000 is not between ping group 1 to 0"
+2026-02-01T13:46:10Z WRN ICMP proxy feature is disabled error="cannot create ICMPv4 proxy: Group ID 1000 is not between ping group 1 to 0 nor ICMPv6 proxy: socket: permission denied"
+2026-02-01T13:46:10Z INF ICMP proxy will use 192.168.12.158 as source for IPv4
+2026-02-01T13:46:10Z INF ICMP proxy will use fdfe:5e6c:2e69:98de:a313:3ce8:90b2:a9c8 in zone eno1 as source for IPv6
+2026-02-01T13:46:10Z INF Starting metrics server on 127.0.0.1:20241/metrics
+2026-02-01T13:46:10Z INF Tunnel connection curve preferences: [X25519MLKEM768 CurveP256] connIndex=0 event=0 ip=198.41.200.73
+2026/02/01 07:46:10 failed to sufficiently increase receive buffer size (was: 208 kiB, wanted: 7168 kiB, got: 416 kiB). See https://github.com/quic-go/quic-go/wiki/UDP-Buffer-Sizes for details.
+2026-02-01T13:46:11Z INF Registered tunnel connection connIndex=0 connection=367b01f4-4b50-48e6-a05c-65141540090f event=0 ip=198.41.200.73 location=atl10 protocol=quic
+2026-02-01T13:46:11Z INF Tunnel connection curve preferences: [X25519MLKEM768 CurveP256] connIndex=1 event=0 ip=198.41.192.227
+2026-02-01T13:46:12Z INF Registered tunnel connection connIndex=1 connection=42469d2a-f661-4884-9c6d-a2098b4f2ca9 event=0 ip=198.41.192.227 location=atl12 protocol=quic
+2026-02-01T13:46:12Z INF Tunnel connection curve preferences: [X25519MLKEM768 CurveP256] connIndex=2 event=0 ip=198.41.200.193
+2026-02-01T13:46:13Z INF Registered tunnel connection connIndex=2 connection=a79b7aab-c0e1-4e44-99c2-61a58ac89102 event=0 ip=198.41.200.193 location=atl14 protocol=quic
+2026-02-01T13:46:13Z INF Tunnel connection curve preferences: [X25519MLKEM768 CurveP256] connIndex=3 event=0 ip=198.41.192.107
+2026-02-01T13:46:14Z INF Registered tunnel connection connIndex=3 connection=653f4f57-fe31-405c-bc18-2a668ac407b6 event=0 ip=198.41.192.107 location=atl12 protocol=quic
+^C2026-02-01T15:03:43Z INF Initiating graceful shutdown due to signal interrupt ...
+2026-02-01T15:03:43Z ERR failed to run the datagram handler error="context canceled" connIndex=3 event=0 ip=198.41.192.107
+2026-02-01T15:03:43Z ERR failed to serve tunnel connection error="accept stream listener encountered a failure while serving" connIndex=3 event=0 ip=198.41.192.107
+2026-02-01T15:03:43Z ERR Serve tunnel error error="accept stream listener encountered a failure while serving" connIndex=3 event=0 ip=198.41.192.107
+2026-02-01T15:03:43Z INF Retrying connection in up to 1s connIndex=3 event=0 ip=198.41.192.107
+2026-02-01T15:03:43Z ERR Connection terminated connIndex=3
+2026-02-01T15:03:43Z ERR failed to run the datagram handler error="Application error 0x0 (remote)" connIndex=1 event=0 ip=198.41.192.227
+2026-02-01T15:03:43Z ERR failed to serve tunnel connection error="accept stream listener encountered a failure while serving" connIndex=1 event=0 ip=198.41.192.227
+2026-02-01T15:03:43Z ERR Serve tunnel error error="accept stream listener encountered a failure while serving" connIndex=1 event=0 ip=198.41.192.227
+2026-02-01T15:03:43Z INF Retrying connection in up to 1s connIndex=1 event=0 ip=198.41.192.227
+2026-02-01T15:03:43Z ERR Connection terminated connIndex=1
+2026-02-01T15:03:43Z ERR failed to run the datagram handler error="context canceled" connIndex=2 event=0 ip=198.41.200.193
+2026-02-01T15:03:43Z ERR failed to run the datagram handler error="Application error 0x0 (remote)" connIndex=0 event=0 ip=198.41.200.73
+2026-02-01T15:03:43Z ERR failed to serve tunnel connection error="accept stream listener encountered a failure while serving" connIndex=2 event=0 ip=198.41.200.193
+2026-02-01T15:03:43Z ERR Serve tunnel error error="accept stream listener encountered a failure while serving" connIndex=2 event=0 ip=198.41.200.193
+2026-02-01T15:03:43Z ERR failed to serve tunnel connection error="accept stream listener encountered a failure while serving" connIndex=0 event=0 ip=198.41.200.73
+2026-02-01T15:03:43Z INF Retrying connection in up to 1s connIndex=2 event=0 ip=198.41.200.193
+2026-02-01T15:03:43Z ERR Serve tunnel error error="accept stream listener encountered a failure while serving" connIndex=0 event=0 ip=198.41.200.73
+2026-02-01T15:03:43Z ERR Connection terminated connIndex=2
+2026-02-01T15:03:43Z INF Retrying connection in up to 1s connIndex=0 event=0 ip=198.41.200.73
+2026-02-01T15:03:43Z ERR Connection terminated connIndex=0
+2026-02-01T15:03:43Z ERR no more connections active and exiting
+2026-02-01T15:03:43Z INF Tunnel server stopped
+2026-02-01T15:03:43Z INF Metrics server stopped
+scott@hpg4:~$ sudo cloudflared service install eyJhIjoiYmMwNzhiNjgyNTIyOTU0NjkzZmVkYzQzMjFiNWYyNzAiLCJ0IjoiYzkwMmYwZDctOTk2NS00OTgyLThlZDAtNGM4ZjkwYmM3ODNmIiwicyI6Ik5EZzBPREpqTVRNdE5UQTVOUzAwTWpNNExUZ3lNVFF0T1RRME9EZzJNakJoTW1NNCJ9
+[sudo] password for scott: 
+2026-02-01T15:04:00Z INF Using Systemd
+2026-02-01T15:04:01Z INF Linux service for cloudflared installed successfully
+scott@hpg4:~$ 
