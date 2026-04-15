@@ -5,6 +5,7 @@ const Navigation = ({ activeSection, onSectionChange }) => {
   const sections = [
     { id: 'photos', label: '📸 Photos', icon: '📸' },
     { id: 'guestbook', label: '✍️ Guestbook', icon: '✍️' },
+    { id: 'caricature', label: '🎨 Caricature', icon: '🎨' },
     { id: 'music', label: '🎵 Music', icon: '🎵', disabled: true }, // Disabled until we build it
   ];
 

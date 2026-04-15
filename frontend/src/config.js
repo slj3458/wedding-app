@@ -24,6 +24,12 @@ export const API = {
   GUESTBOOK_ENTRIES: `${API_BASE_URL}/api/guestbook/entries`,
   GUESTBOOK_SUBMIT: `${API_BASE_URL}/api/guestbook/entry`,
 
+  // Caricature endpoints
+  CARICATURE_SUBMIT: `${API_BASE_URL}/api/caricature/submit`,
+  CARICATURE_IMAGE: (filename) => `${API_BASE_URL}/api/caricature/${filename}`,
+  CARICATURE_DOWNLOAD: (filename) =>
+    `${API_BASE_URL}/api/caricature/${filename}/download`,
+
   // Admin endpoints
   ADMIN_LOGIN: `${API_BASE_URL}/api/admin/login`,
   ADMIN_LOGOUT: `${API_BASE_URL}/api/admin/logout`,

@@ -4,9 +4,10 @@ Configuration settings for the wedding app.
 """
 import os
 
-# Admin password - change this to something secure!
-# In production, use environment variable: os.getenv("ADMIN_PASSWORD", "wedding2026")
-ADMIN_PASSWORD = "wedding2026"
+from dotenv import load_dotenv
 
-# You can also set it via environment variable:
-# ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD", "wedding2026")
+load_dotenv()
+
+ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD", "wedding2026")
+
+STABILITY_API_KEY: str | None = os.getenv("STABILITY_API_KEY")

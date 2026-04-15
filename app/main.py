@@ -5,7 +5,7 @@ from contextlib import asynccontextmanager
 from pathlib import Path
 
 from .database import init_db
-from .routers import gallery, guestbook, admin
+from .routers import gallery, guestbook, admin, caricature
 from .websocket.manager import manager
 
 # Lifespan context manager for startup/shutdown
@@ -39,6 +39,7 @@ app.add_middleware(
 app.include_router(gallery.router)
 app.include_router(guestbook.router)
 app.include_router(admin.router)
+app.include_router(caricature.router)
 
 # WebSocket endpoint
 @app.websocket("/ws")

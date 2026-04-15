@@ -33,6 +33,18 @@ async def init_db():
             )
         """)
 
+        # Caricatures table (selfie -> stylized output; separate from main gallery)
+        await db.execute("""
+            CREATE TABLE IF NOT EXISTS caricatures (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                filename TEXT NOT NULL,
+                raw_filename TEXT NOT NULL,
+                original_filename TEXT,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                hidden INTEGER DEFAULT 0
+            )
+        """)
+
         await db.commit()
 
 async def get_db():

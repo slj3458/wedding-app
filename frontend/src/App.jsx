@@ -6,13 +6,14 @@ import Navigation from './components/Navigation';
 import PhotoUpload from './components/PhotoUpload';
 import PhotoGallery from './components/PhotoGallery';
 import Guestbook from './components/Guestbook';
+import CaricatureBooth from './components/CaricatureBooth';
 import BackgroundSelector from './components/BackgroundSelector';
 
 function App() {
   const [isAdmin, setIsAdmin] = useState(false);
   const [adminToken, setAdminToken] = useState(null);
   const [activeSection, setActiveSection] = useState('photos'); // Default to photos
-  const [background, setBackground] = useState('linear-gradient(135deg, #5a175d 0%, #764ba2 100%)');
+  const [background, setBackground] = useState('#7e1535');
 
   console.log('App - isAdmin:', isAdmin, 'adminToken:', adminToken);
 
@@ -31,7 +32,7 @@ function App() {
       <BackgroundSelector onBackgroundChange={setBackground} />
 
       <div style={styles.container}>
-        <h1 style={styles.mainTitle}>Wedding Reception</h1>
+        <h1 style={styles.mainTitle}>Ginger & Kyle</h1>
 
         {/* Navigation */}
         <Navigation
@@ -50,6 +51,8 @@ function App() {
         {activeSection === 'guestbook' && (
           <Guestbook isAdmin={isAdmin} adminToken={adminToken} />
         )}
+
+        {activeSection === 'caricature' && <CaricatureBooth />}
 
         {activeSection === 'music' && (
           <div style={styles.comingSoon}>
