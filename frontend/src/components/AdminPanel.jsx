@@ -32,7 +32,7 @@ const AdminPanel = ({ onAdminChange }) => {
       setShowLogin(false);
       setPassword("");
       onAdminChange(true, data.token);
-    } catch (err) {
+    } catch {
       setError("Invalid password. Please try again.");
     }
   };
@@ -57,44 +57,47 @@ const AdminPanel = ({ onAdminChange }) => {
   return (
     <div style={styles.container}>
       {!isAdmin ? (
-        <div style={styles.loginSection}>
+        <>
           {!showLogin ? (
             <button
               onClick={() => setShowLogin(true)}
               style={styles.adminButton}
+              title="Admin Login"
             >
-              🔐 Admin Login
+              🔐
             </button>
           ) : (
-            <form onSubmit={handleLogin} style={styles.loginForm}>
-              <input
-                type="password"
-                placeholder="Enter admin password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                style={styles.passwordInput}
-                autoFocus
-              />
-              <div style={styles.buttonGroup}>
-                <button type="submit" style={styles.submitButton}>
-                  Login
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setShowLogin(false);
-                    setPassword("");
-                    setError("");
-                  }}
-                  style={styles.cancelButton}
-                >
-                  Cancel
-                </button>
-              </div>
-              {error && <div style={styles.error}>{error}</div>}
-            </form>
+            <div style={styles.loginSection}>
+              <form onSubmit={handleLogin} style={styles.loginForm}>
+                <input
+                  type="password"
+                  placeholder="Enter admin password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  style={styles.passwordInput}
+                  autoFocus
+                />
+                <div style={styles.buttonGroup}>
+                  <button type="submit" style={styles.submitButton}>
+                    Login
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowLogin(false);
+                      setPassword("");
+                      setError("");
+                    }}
+                    style={styles.cancelButton}
+                  >
+                    Cancel
+                  </button>
+                </div>
+                {error && <div style={styles.error}>{error}</div>}
+              </form>
+            </div>
           )}
-        </div>
+        </>
       ) : (
         <div style={styles.adminActive}>
           <span style={styles.adminBadge}>⚡ Admin Mode Active</span>
@@ -109,9 +112,9 @@ const AdminPanel = ({ onAdminChange }) => {
 
 const styles = {
   container: {
-    position: "fixed",
-    top: "20px",
-    right: "20px",
+    position: "absolute",
+    top: 0,
+    right: 0,
     zIndex: 1000,
   },
   loginSection: {
@@ -120,15 +123,14 @@ const styles = {
     boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
   },
   adminButton: {
-    padding: "10px 16px",
-    fontSize: "14px",
-    fontWeight: "600",
-    color: "#666",
-    backgroundColor: "white",
-    border: "2px solid #e0e0e0",
-    borderRadius: "8px",
+    padding: "6px",
+    fontSize: "22px",
+    lineHeight: 1,
+    backgroundColor: "transparent",
+    border: "none",
+    borderRadius: "6px",
     cursor: "pointer",
-    transition: "all 0.2s",
+    opacity: 0.7,
   },
   loginForm: {
     padding: "16px",

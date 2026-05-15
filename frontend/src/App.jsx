@@ -25,14 +25,14 @@ function App() {
 
   return (
     <div className="App" style={{ background, minHeight: '100vh' }}>
-      {/* Admin Panel - floating in top-right */}
-      <AdminPanel onAdminChange={handleAdminChange} />
-      
       {/* Background Selector */}
-      <BackgroundSelector onBackgroundChange={setBackground} />
+      {isAdmin && <BackgroundSelector onBackgroundChange={setBackground} />}
 
       <div style={styles.container}>
-        <h1 style={styles.mainTitle}>Ginger & Kyle</h1>
+        <div style={styles.titleBar}>
+          <h1 style={styles.mainTitle}>Ginger & Kyle</h1>
+          <AdminPanel onAdminChange={handleAdminChange} />
+        </div>
 
         {/* Navigation */}
         <Navigation
@@ -67,15 +67,19 @@ function App() {
 
 const styles = {
   container: {
-    maxWidth: '1200px',
+    maxWidth: '480px',
     margin: '0 auto',
     padding: '20px',
+  },
+  titleBar: {
+    position: 'relative',
+    marginBottom: '30px',
   },
   mainTitle: {
     fontSize: '42px',
     color: 'white',
     textAlign: 'center',
-    marginBottom: '30px',
+    margin: 0,
     textShadow: '2px 2px 4px rgba(0,0,0,0.3)',
   },
   comingSoon: {

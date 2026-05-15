@@ -6,6 +6,7 @@ from typing import Optional
 
 from fastapi import APIRouter, File, Header, HTTPException, UploadFile
 from fastapi.responses import FileResponse
+from PIL import Image
 
 from ..config import STABILITY_API_KEY
 from ..database import get_db
@@ -21,6 +22,28 @@ CARICATURE_DIR = Path("uploads/caricatures")
 RAW_DIR = CARICATURE_DIR / "raw"
 ALLOWED_EXTENSIONS = {".jpg", ".jpeg", ".png", ".webp"}
 MAX_SIZE = 10 * 1024 * 1024  # 10MB
+
+BANNER_PATH = Path(__file__).resolve().parent.parent / "assets" / "banner.png"
+BANNER_WIDTH_RATIO = 0.7  # banner width as fraction of caricature width
+
+
+def _apply_banner(caricature_path: Path) -> None:
+    """Composite the wedding banner at the top center of the caricature."""
+    with Image.open(caricature_path) as caric:
+        caric = caric.convert("RGBA")
+        with Image.open(BANNER_PATH) as banner:
+            # Scale banner to a fraction of the caricature width
+            target_w = int(caric.width * BANNER_WIDTH_RATIO)
+            scale = target_w / banner.width
+            target_h = int(banner.height * scale)
+            banner = banner.resize((target_w, target_h), Image.LANCZOS)
+
+            # Center horizontally, place at top with a small margin
+            x = (caric.width - target_w) // 2
+            y = int(caric.height * 0.02)
+
+            caric.paste(banner, (x, y), banner)  # alpha mask
+            caric.convert("RGB").save(caricature_path, "JPEG", quality=92)
 
 
 @router.post("/submit")
@@ -52,6 +75,7 @@ async def submit_selfie(file: UploadFile = File(...)):
         else:
             logger.info("Caricature: using local OpenCV fallback for %s", raw_filename)
             await asyncio.to_thread(stylize, raw_path, out_path)
+        await asyncio.to_thread(_apply_banner, out_path)
     except Exception as exc:
         raise HTTPException(500, f"Stylization failed: {exc}")
 

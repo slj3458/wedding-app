@@ -71,7 +71,7 @@ const PhotoUpload = () => {
         throw new Error("Upload failed");
       }
 
-      const data = await response.json();
+      await response.json();
 
       // Success! Clear the form
       setMessage({ type: "success", text: "✓ Photo uploaded successfully!" });

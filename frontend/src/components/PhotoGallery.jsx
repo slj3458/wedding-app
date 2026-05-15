@@ -321,7 +321,7 @@ const PhotoGallery = ({ isAdmin = false, adminToken = null }) => {
 // Styles
 const styles = {
   container: {
-    maxWidth: "1200px",
+    maxWidth: "480px",
     margin: "0 auto",
     padding: "20px",
   },
@@ -424,7 +424,7 @@ const styles = {
   },
   grid: {
     display: "grid",
-    gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))",
+    gridTemplateColumns: "repeat(auto-fill, minmax(140px, 1fr))",
     gap: "20px",
   },
   photoCard: {

@@ -9,7 +9,7 @@ export default defineConfig({
     allowedHosts: ["wedding.igwalkin.net", "localhost", "127.0.0.1"],
     proxy: {
       "/api": {
-        target: "http://localhost:8080",
+        target: "http://localhost:8001",
         changeOrigin: true,
       },
     },

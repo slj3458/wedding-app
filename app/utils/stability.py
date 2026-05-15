@@ -18,14 +18,15 @@ STABILITY_ENDPOINT = "https://api.stability.ai/v2beta/stable-image/generate/sd3"
 STABILITY_MODEL = "sd3.5-flash"
 
 CARICATURE_PROMPT = (
-    "A hand-drawn caricature, cartoonishly exaggerated features, "
-    "with white background."
+    "A professional caricature with extreme facial exaggeration, "
+    "oversized head, comically large features, whimsical hand-drawn style, "
+    "clean ink lines, minimalist watercolor, white background"
 )
 NEGATIVE_PROMPT = (
     "photorealistic, blurry, low quality, distorted anatomy, extra limbs"
 )
 
-IMAGE_STRENGTH = 0.75
+IMAGE_STRENGTH = 0.35
 MAX_INPUT_DIM = 1536
 INPUT_JPEG_QUALITY = 92
 STABILITY_TIMEOUT = 60.0
