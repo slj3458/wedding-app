@@ -10,35 +10,40 @@ Wedding reception web app: guests upload photos, leave guestbook entries, and ad
 
 Backend (uv + FastAPI, Python ≥3.11):
 - `uv sync` — install deps
-- `uv run fastapi dev app/main.py` — dev server (reload) on :8000
+- `uv run fastapi dev app/main.py --port 8001` — dev server (reload) on :8001 (port 8000 is occupied by Portainer)
 - `uv run fastapi run app/main.py --host 0.0.0.0 --port 8080` — prod-style run
 
 Frontend (Vite + React 19, in `frontend/`):
 - `npm install`
-- `npm run dev` — Vite dev server; proxies `/api` → `http://localhost:8080`
+- `npm run dev` — Vite dev server; proxies `/api` → `http://localhost:8001`
 - `npm run build` — outputs to `frontend/dist/`, which the FastAPI app mounts at `/` when present
 - `npm run lint` — ESLint
 
 Full stack via Docker: `docker-compose up --build` (backend on :8080, optional nginx on :80 serving `frontend/build`).
 
-No test suite is configured.
+Testing:
+- `uv run pytest tests/ -v` — run all backend tests
+- `npm run test` (in `frontend/`) — run all component tests (vitest)
 
 ## Architecture
 
 **Single-process deployment model.** In production, FastAPI serves the built React SPA as static files (`app/main.py` mounts `frontend/dist` at `/` if it exists). In dev, run Vite and FastAPI separately — Vite proxies `/api` to the backend.
 
 **Backend layout** (`app/`):
-- `main.py` — FastAPI app, lifespan-based DB init, CORS (open), three routers, `/ws` WebSocket endpoint, SPA static mount.
-- `database.py` — `aiosqlite` against `data/wedding.db`. Two tables: `photos`, `guestbook`, both with a `hidden` soft-delete flag. `get_db()` returns a new connection per caller with `Row` factory.
-- `routers/` — `gallery.py` (uploads, likes, thumbnails), `guestbook.py` (entries), `admin.py` (login/logout/moderation actions; password in `app/config.py` via `ADMIN_PASSWORD`).
+- `main.py` — FastAPI app, lifespan-based DB init, CORS (open), four routers, `/ws` WebSocket endpoint, SPA static mount.
+- `database.py` — `aiosqlite` against `data/wedding.db`. Three tables: `photos`, `guestbook`, `caricatures`, all with a `hidden` soft-delete flag. `get_db()` returns a new connection per caller with `Row` factory.
+- `routers/` — `gallery.py` (uploads, likes, thumbnails), `guestbook.py` (entries), `admin.py` (login/logout/moderation actions; password in `app/config.py` via `ADMIN_PASSWORD`), `caricature.py` (selfie → stylized caricature; uses Stability API or OpenCV fallback; serves caricature images).
 - `utils/image_processor.py` — Pillow-based image/thumbnail processing for uploads; files land in `uploads/` and `thumbnails/`.
+- `utils/stability.py` — Stability API img2img integration (SD 3.5 Flash) for caricature generation.
+- `utils/caricature.py` — local OpenCV cartoon filter fallback when `STABILITY_API_KEY` is not set.
 - `websocket/manager.py` — in-memory connection manager; routers broadcast via this after mutations so all clients refresh live. Any new mutating endpoint should broadcast through `manager` to preserve realtime behavior.
 
 **Frontend layout** (`frontend/src/`):
-- `App.jsx` — top-level view switching (gallery / guestbook / upload / admin).
-- `components/` — `PhotoGallery`, `PhotoUpload`, `Guestbook`, `AdminPanel`, `Navigation`, `BackgroundSelector`.
+- `App.jsx` — top-level view switching (gallery / guestbook / fun / music). Container uses `width: 100vw` with `box-sizing: border-box`.
+- `components/` — `PhotoGallery`, `PhotoUpload`, `Guestbook`, `AdminPanel`, `Navigation`, `CaricatureBooth`, `BackgroundSelector` (admin-only — hidden from guests, appears after admin login).
+- Navigation uses text-only labels (no icons): Photos | Guestbook | Fun! | Music. The "Fun!" section (`id: 'fun'`) renders `CaricatureBooth` and is designed to host additional novelty features (MadLib, crossword, etc.) over time.
 - `hooks/useWebSocket.js` — subscribes to `/ws` and triggers refetches on broadcast messages.
-- `config.js` — **all API URLs go through this module.** In dev it reads `VITE_API_URL` / `VITE_WS_URL` (defaults to `localhost:8080`); in prod it uses relative URLs so the SPA works behind the same origin as the API. Add new endpoints here rather than hardcoding.
+- `config.js` — **all API URLs go through this module.** In dev it reads `VITE_API_URL` / `VITE_WS_URL` (defaults to `localhost:8001`); in prod it uses relative URLs so the SPA works behind the same origin as the API. Add new endpoints here rather than hardcoding.
 
 **Persistent state** lives in `data/` (SQLite), `uploads/` (originals), `thumbnails/` (generated). The Docker compose file bind-mounts all three so they survive rebuilds.
 
@@ -57,6 +62,21 @@ The caricature endpoint branches on `STABILITY_API_KEY`: when set, it calls Stab
 
 ## Notes
 
-- `ADMIN_PASSWORD` defaults to `"wedding2026"` in `app/config.py`; override via `.env` for production.
+- `ADMIN_PASSWORD` defaults to `"gk26"` in `app/config.py`; override via `.env` for production.
+- Port 8000 is occupied by Portainer on the host machine; always use `--port 8001` for the dev backend.
 - CORS is wide open (`allow_origins=["*"]`); intentional for the single-event deployment, but worth noting before reuse.
 - Several `*~` backup files exist alongside sources (editor artifacts); ignore them.
+
+## Testing
+
+**Backend** — pytest + pytest-asyncio + httpx:
+- `conftest.py` monkeypatches `database.DATABASE_PATH` to a temp file and `gallery.UPLOAD_DIR` / `gallery.THUMB_DIR` to `tmp_path` subdirs; clears `admin.active_tokens` before each test.
+- `tests/test_admin.py` — login/logout, token auth, wrong-password rejection
+- `tests/test_gallery.py` — upload, like, thumbnail generation, invalid file type
+- `tests/test_guestbook.py` — post entry, list entries, missing fields → 422
+
+**Frontend** — vitest + @testing-library/react + happy-dom + msw:
+- MSW handlers in `src/test/handlers.js` intercept `/api/*` calls with fixture responses.
+- `src/components/AdminPanel.test.jsx` — renders, login flow, error state, logout
+- `src/components/Guestbook.test.jsx` — entry list renders, form submission
+- `src/components/PhotoUpload.test.jsx` — file selection, upload call, oversized file rejection

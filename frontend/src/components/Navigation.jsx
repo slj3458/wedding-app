@@ -3,10 +3,10 @@ import React from 'react';
 
 const Navigation = ({ activeSection, onSectionChange }) => {
   const sections = [
-    { id: 'photos', label: '📸 Photos', icon: '📸' },
-    { id: 'guestbook', label: '✍️ Guestbook', icon: '✍️' },
-    { id: 'caricature', label: '🎨 Caricature', icon: '🎨' },
-    { id: 'music', label: '🎵 Music', icon: '🎵', disabled: true }, // Disabled until we build it
+    { id: 'photos', label: 'Photos' },
+    { id: 'guestbook', label: 'Guestbook' },
+    { id: 'fun', label: 'Fun!' },
+    { id: 'music', label: 'Music', disabled: true },
   ];
 
   return (
@@ -23,8 +23,7 @@ const Navigation = ({ activeSection, onSectionChange }) => {
             }}
             disabled={section.disabled}
           >
-            <span style={styles.icon}>{section.icon}</span>
-            <span style={styles.label}>{section.label.split(' ')[1]}</span>
+            {section.label}
           </button>
         ))}
       </div>
@@ -42,19 +41,20 @@ const styles = {
     marginBottom: '30px',
   },
   container: {
-    maxWidth: '480px',
-    margin: '0 auto',
+    width: '100%',
     display: 'flex',
-    justifyContent: 'center',
+    justifyContent: 'space-evenly',
     gap: '4px',
     padding: '12px 8px',
+    boxSizing: 'border-box',
   },
   navButton: {
+    flex: 1,
     display: 'flex',
     alignItems: 'center',
-    gap: '4px',
-    padding: '10px 8px',
-    fontSize: '14px',
+    justifyContent: 'center',
+    padding: '10px 4px',
+    fontSize: '13px',
     fontWeight: '600',
     color: '#666',
     backgroundColor: 'transparent',
@@ -62,6 +62,9 @@ const styles = {
     borderRadius: '8px',
     cursor: 'pointer',
     transition: 'all 0.2s',
+    whiteSpace: 'nowrap',
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
   },
   navButtonActive: {
     color: '#67074e',
@@ -71,18 +74,6 @@ const styles = {
   navButtonDisabled: {
     opacity: 0.4,
     cursor: 'not-allowed',
-  },
-  icon: {
-    fontSize: '20px',
-  },
-  label: {
-    display: 'inline',
-  },
-  // Mobile responsive
-  '@media (max-width: 600px)': {
-    label: {
-      display: 'none', // Hide text on mobile, keep icons only
-    },
   },
 };
 

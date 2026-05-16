@@ -52,7 +52,7 @@ function App() {
           <Guestbook isAdmin={isAdmin} adminToken={adminToken} />
         )}
 
-        {activeSection === 'caricature' && <CaricatureBooth />}
+        {activeSection === 'fun' && <CaricatureBooth />}
 
         {activeSection === 'music' && (
           <div style={styles.comingSoon}>
@@ -67,8 +67,8 @@ function App() {
 
 const styles = {
   container: {
-    maxWidth: '480px',
-    margin: '0 auto',
+    width: '100vw',
+    boxSizing: 'border-box',
     padding: '20px',
   },
   titleBar: {
