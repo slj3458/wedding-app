@@ -1,37 +1,72 @@
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import { API } from "../config";
 
-const STATES = { IDLE: "idle", PROCESSING: "processing", RESULT: "result" };
+const STATES = { IDLE: "idle", CAMERA: "camera", PROCESSING: "processing", RESULT: "result" };
 
 const CaricatureBooth = () => {
   const [state, setState] = useState(STATES.IDLE);
   const [result, setResult] = useState(null);
   const [error, setError] = useState("");
   const inputRef = useRef(null);
+  const videoRef = useRef(null);
+  const streamRef = useRef(null);
 
-  const reset = () => {
-    setState(STATES.IDLE);
-    setResult(null);
-    setError("");
-    if (inputRef.current) inputRef.current.value = "";
+  useEffect(() => {
+    return () => stopStream();
+  }, []);
+
+  useEffect(() => {
+    if (state === STATES.CAMERA && videoRef.current && streamRef.current) {
+      videoRef.current.srcObject = streamRef.current;
+    }
+  }, [state]);
+
+  const stopStream = () => {
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach((t) => t.stop());
+      streamRef.current = null;
+    }
   };
 
-  const handleFile = async (event) => {
-    const file = event.target.files && event.target.files[0];
-    if (!file) return;
-
-    if (!file.type.startsWith("image/")) {
-      setError("Please select an image.");
-      return;
-    }
-    if (file.size > 10 * 1024 * 1024) {
-      setError("Image is too large (max 10MB).");
-      return;
-    }
-
+  const openCamera = async () => {
     setError("");
-    setState(STATES.PROCESSING);
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: "user" },
+        audio: false,
+      });
+      streamRef.current = stream;
+      setState(STATES.CAMERA);
+    } catch {
+      // No camera access (HTTP, denied, unsupported) — fall back to file picker
+      inputRef.current?.click();
+    }
+  };
 
+  const snap = () => {
+    const video = videoRef.current;
+    if (!video) return;
+    const canvas = document.createElement("canvas");
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    canvas.getContext("2d").drawImage(video, 0, 0);
+    canvas.toBlob(
+      (blob) => {
+        stopStream();
+        if (blob) processFile(new File([blob], "selfie.jpg", { type: "image/jpeg" }));
+      },
+      "image/jpeg",
+      0.92
+    );
+  };
+
+  const cancelCamera = () => {
+    stopStream();
+    setState(STATES.IDLE);
+  };
+
+  const processFile = async (file) => {
+    setState(STATES.PROCESSING);
     try {
       const formData = new FormData();
       formData.append("file", file);
@@ -50,6 +85,28 @@ const CaricatureBooth = () => {
     }
   };
 
+  const handleFile = (event) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    if (!file.type.startsWith("image/")) {
+      setError("Please select an image.");
+      return;
+    }
+    if (file.size > 10 * 1024 * 1024) {
+      setError("Image is too large (max 10MB).");
+      return;
+    }
+    setError("");
+    processFile(file);
+  };
+
+  const reset = () => {
+    setState(STATES.IDLE);
+    setResult(null);
+    setError("");
+    if (inputRef.current) inputRef.current.value = "";
+  };
+
   return (
     <div style={styles.container}>
       <h2 style={styles.title}>🎨 Caricature Booth</h2>
@@ -63,16 +120,35 @@ const CaricatureBooth = () => {
             ref={inputRef}
             type="file"
             accept="image/*"
-            capture="user"
             onChange={handleFile}
             style={styles.fileInput}
             id="caricature-input"
           />
-          <label htmlFor="caricature-input" style={styles.bigButton}>
+          <button onClick={openCamera} style={styles.bigButton}>
             📸 Take a Selfie
-          </label>
+          </button>
           {error && <div style={styles.error}>{error}</div>}
         </>
+      )}
+
+      {state === STATES.CAMERA && (
+        <div style={styles.cameraWrap}>
+          <video
+            ref={videoRef}
+            autoPlay
+            playsInline
+            muted
+            style={styles.video}
+          />
+          <div style={styles.cameraActions}>
+            <button onClick={snap} style={styles.snapButton}>
+              📸 Snap!
+            </button>
+            <button onClick={cancelCamera} style={styles.secondaryButton}>
+              Cancel
+            </button>
+          </div>
+        </div>
       )}
 
       {state === STATES.PROCESSING && (
@@ -131,6 +207,37 @@ const styles = {
     fontWeight: 600,
     color: "white",
     backgroundColor: "#67074e",
+    borderRadius: "12px",
+    cursor: "pointer",
+    border: "none",
+    boxShadow: "0 4px 12px rgba(103,7,78,0.3)",
+  },
+  cameraWrap: {
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    gap: "16px",
+  },
+  video: {
+    width: "100%",
+    maxWidth: "400px",
+    borderRadius: "12px",
+    background: "#000",
+    transform: "scaleX(-1)",
+  },
+  cameraActions: {
+    display: "flex",
+    gap: "12px",
+    justifyContent: "center",
+    flexWrap: "wrap",
+  },
+  snapButton: {
+    padding: "16px 32px",
+    fontSize: "18px",
+    fontWeight: 600,
+    color: "white",
+    backgroundColor: "#67074e",
+    border: "none",
     borderRadius: "12px",
     cursor: "pointer",
     boxShadow: "0 4px 12px rgba(103,7,78,0.3)",

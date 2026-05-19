@@ -6,7 +6,7 @@ import os
 
 from dotenv import load_dotenv
 
-load_dotenv()
+load_dotenv(override=True)
 
 ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD", "gk26")
 

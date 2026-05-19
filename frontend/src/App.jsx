@@ -6,7 +6,7 @@ import Navigation from './components/Navigation';
 import PhotoUpload from './components/PhotoUpload';
 import PhotoGallery from './components/PhotoGallery';
 import Guestbook from './components/Guestbook';
-import CaricatureBooth from './components/CaricatureBooth';
+// import CaricatureBooth from './components/CaricatureBooth';  // suppressed
 import BackgroundSelector from './components/BackgroundSelector';
 
 function App() {
@@ -52,7 +52,7 @@ function App() {
           <Guestbook isAdmin={isAdmin} adminToken={adminToken} />
         )}
 
-        {activeSection === 'fun' && <CaricatureBooth />}
+        {/* activeSection === 'fun' && <CaricatureBooth /> */}{/* suppressed */}
 
         {activeSection === 'music' && (
           <div style={styles.comingSoon}>

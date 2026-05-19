@@ -80,3 +80,8 @@ The caricature endpoint branches on `STABILITY_API_KEY`: when set, it calls Stab
 - `src/components/AdminPanel.test.jsx` — renders, login flow, error state, logout
 - `src/components/Guestbook.test.jsx` — entry list renders, form submission
 - `src/components/PhotoUpload.test.jsx` — file selection, upload call, oversized file rejection
+
+## Known gotchas
+
+- **WebSocket URL double-colon bug**: `window.location.protocol` already includes a trailing colon (`"http:"`), so the `WS_BASE_URL` template in `src/config.js` must use `"wss"` / `"ws"` (no colon) in the ternary — not `"wss:"` / `"ws:"`. The latter produces `ws:://...` which is an invalid URL and crashes React on mount.
+- **`capture="user"` causes page reload on mobile**: Both Android Chrome and iOS Safari reload the page when returning from the native camera app triggered by `input[capture]`. This resets all React state (including active tab). The `CaricatureBooth` input intentionally omits `capture`; users tap the camera icon inside the system photo picker instead. Do not add `capture` back.
