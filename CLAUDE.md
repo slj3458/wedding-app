@@ -30,18 +30,18 @@ Testing:
 **Single-process deployment model.** In production, FastAPI serves the built React SPA as static files (`app/main.py` mounts `frontend/dist` at `/` if it exists). In dev, run Vite and FastAPI separately — Vite proxies `/api` to the backend.
 
 **Backend layout** (`app/`):
-- `main.py` — FastAPI app, lifespan-based DB init, CORS (open), four routers, `/ws` WebSocket endpoint, SPA static mount.
+- `main.py` — FastAPI app, lifespan-based DB init, CORS (open), three active routers, `/ws` WebSocket endpoint, SPA static mount.
 - `database.py` — `aiosqlite` against `data/wedding.db`. Three tables: `photos`, `guestbook`, `caricatures`, all with a `hidden` soft-delete flag. `get_db()` returns a new connection per caller with `Row` factory.
-- `routers/` — `gallery.py` (uploads, likes, thumbnails), `guestbook.py` (entries), `admin.py` (login/logout/moderation actions; password in `app/config.py` via `ADMIN_PASSWORD`), `caricature.py` (selfie → stylized caricature; uses Stability API or OpenCV fallback; serves caricature images).
+- `routers/` — `gallery.py` (uploads, likes, thumbnails), `guestbook.py` (entries), `admin.py` (login/logout/moderation actions; password in `app/config.py` via `ADMIN_PASSWORD`). `caricature.py` exists but is **suppressed** (import and `include_router` call commented out in `main.py`).
 - `utils/image_processor.py` — Pillow-based image/thumbnail processing for uploads; files land in `uploads/` and `thumbnails/`.
-- `utils/stability.py` — Stability API img2img integration (SD 3.5 Flash) for caricature generation.
-- `utils/caricature.py` — local OpenCV cartoon filter fallback when `STABILITY_API_KEY` is not set.
+- `utils/stability.py` — Stability API img2img integration (SD 3.5 Flash) for caricature generation. **Suppressed** (not in use while caricature feature is off).
+- `utils/caricature.py` — local OpenCV cartoon filter fallback when `STABILITY_API_KEY` is not set. **Suppressed** (not in use while caricature feature is off).
 - `websocket/manager.py` — in-memory connection manager; routers broadcast via this after mutations so all clients refresh live. Any new mutating endpoint should broadcast through `manager` to preserve realtime behavior.
 
 **Frontend layout** (`frontend/src/`):
 - `App.jsx` — top-level view switching (gallery / guestbook / fun / music). Container uses `width: 100vw` with `box-sizing: border-box`.
-- `components/` — `PhotoGallery`, `PhotoUpload`, `Guestbook`, `AdminPanel`, `Navigation`, `CaricatureBooth`, `BackgroundSelector` (admin-only — hidden from guests, appears after admin login).
-- Navigation uses text-only labels (no icons): Photos | Guestbook | Fun! | Music. The "Fun!" section (`id: 'fun'`) renders `CaricatureBooth` and is designed to host additional novelty features (MadLib, crossword, etc.) over time.
+- `components/` — `PhotoGallery`, `PhotoUpload`, `Guestbook`, `AdminPanel`, `Navigation`, `BackgroundSelector` (admin-only — hidden from guests, appears after admin login). `CaricatureBooth` exists but is **suppressed** (import and render commented out in `App.jsx`).
+- Navigation uses text-only labels (no icons): Photos | Guestbook | Fun! | Music. The "Fun!" tab is currently **disabled** (caricature feature suppressed); it is designed to host novelty features (CaricatureBooth, MadLib, crossword, etc.) when re-enabled.
 - `hooks/useWebSocket.js` — subscribes to `/ws` and triggers refetches on broadcast messages.
 - `config.js` — **all API URLs go through this module.** In dev it reads `VITE_API_URL` / `VITE_WS_URL` (defaults to `localhost:8001`); in prod it uses relative URLs so the SPA works behind the same origin as the API. Add new endpoints here rather than hardcoding.
 
@@ -58,7 +58,7 @@ ADMIN_PASSWORD=...          # optional override
 
 `chmod 600 .env`. The same file works on the Pi, or inject via `docker-compose.yml` `env_file: .env`.
 
-The caricature endpoint branches on `STABILITY_API_KEY`: when set, it calls Stability v2beta SD 3.5 Flash img2img (`app/utils/stability.py`); when unset, it falls back to the local OpenCV cartoon filter (`app/utils/caricature.py`) so UI iteration doesn't burn credits.
+The caricature endpoint branches on `STABILITY_API_KEY`: when set, it calls Stability v2beta SD 3.5 Flash img2img (`app/utils/stability.py`); when unset, it falls back to the local OpenCV cartoon filter (`app/utils/caricature.py`) so UI iteration doesn't burn credits. **The caricature feature is currently suppressed** — `STABILITY_API_KEY` is not needed until it is re-enabled.
 
 ## Notes
 
@@ -84,4 +84,5 @@ The caricature endpoint branches on `STABILITY_API_KEY`: when set, it calls Stab
 ## Known gotchas
 
 - **WebSocket URL double-colon bug**: `window.location.protocol` already includes a trailing colon (`"http:"`), so the `WS_BASE_URL` template in `src/config.js` must use `"wss"` / `"ws"` (no colon) in the ternary — not `"wss:"` / `"ws:"`. The latter produces `ws:://...` which is an invalid URL and crashes React on mount.
-- **`capture="user"` causes page reload on mobile**: Both Android Chrome and iOS Safari reload the page when returning from the native camera app triggered by `input[capture]`. This resets all React state (including active tab). The `CaricatureBooth` input intentionally omits `capture`; users tap the camera icon inside the system photo picker instead. Do not add `capture` back.
+- **`capture="user"` causes page reload on mobile**: Both Android Chrome and iOS Safari reload the page when returning from the native camera app triggered by `input[capture]`. This resets all React state (including active tab). The `CaricatureBooth` input intentionally omits `capture`; users tap the camera icon inside the system photo picker instead. Do not add `capture` back. (Moot while the caricature feature is suppressed, but preserve this note for when it is re-enabled.)
+- **Re-enabling the caricature feature**: Reverse four commented-out lines — the `caricature` import and `include_router` call in `app/main.py`, the `CaricatureBooth` import in `frontend/src/App.jsx`, and its render in the `'fun'` section. Also remove `disabled: true` from the "Fun!" entry in `frontend/src/components/Navigation.jsx`.
